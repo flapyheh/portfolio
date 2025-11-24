@@ -30,8 +30,6 @@ async def process_command_start_2(message: Message):
 async def process_find_numbers(message : Message, num : list[int]):
     await message.answer(f'Нашел такие числа: {', '.join(str(number) for number in num)}')
 
-
-
 @dp.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
 async def process_user_blocked_bot(event: ChatMemberUpdated):
     print(f'Пользователь {event.from_user.id} заблокировал бота')

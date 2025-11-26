@@ -6,11 +6,36 @@ from aiogram.filters import ChatMemberUpdatedFilter, KICKED
 from aiogram.types import ChatMemberUpdated
 from IsAdmin import IsAdmin
 from NumbersFilter import NumbersFilter
+import logging
 BOT_TOKEN = '8427217382:AAHAXqthQfTDXY8wIgT543409ocSV5x8urU'
 
 # Создаем объекты бота и диспетчера
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+class ErrorFilter(logging.Filter):
+    def filter(self, record):
+        return record.levelname == "ERROR" and "важно" in record.msg.lower() or record.dop
+
+
+stderr_handler = logging.StreamHandler()
+file_handler = logging.FileHandler('logs.log')
+file_handler.addFilter(ErrorFilter())
+
+format_1='[{asctime}] #{levelname:8} {filename}:'\
+            '{lineno} - {name} - {message}'
+formatter_1 = logging.Formatter(
+    fmt=format_1,
+    style = '{'
+    )
+
+logger = logging.getLogger(__name__)
+
+stderr_handler.setFormatter(formatter_1)
+file_handler.setFormatter(formatter_1)
+
+logger.addHandler(stderr_handler)
+logger.addHandler(file_handler)
 
 admin_list : list[int] = [1204095743]
 
@@ -19,6 +44,8 @@ admin_list : list[int] = [1204095743]
 async def process_command_start(message: Message):
     await message.answer('Это команда /start')
     print(message.from_user.id)
+    logger.error('важно! Это DEBUG сообщение')
+    logger.error('Это DEBUG сообщение', extra= {'dop' : 12})
 
 
 # Этот хэндлер будет срабатывать на команду "|start"

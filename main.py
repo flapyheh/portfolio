@@ -7,20 +7,26 @@ from aiogram.types import ChatMemberUpdated
 from IsAdmin import IsAdmin
 from NumbersFilter import NumbersFilter
 import logging
-BOT_TOKEN = '8427217382:AAHAXqthQfTDXY8wIgT543409ocSV5x8urU'
+import logging.config
+import dotenv
+import os
+from logging_settings import logging_config
 
-# Создаем объекты бота и диспетчера
-bot = Bot(token=BOT_TOKEN)
+dotenv.load_dotenv()
+
+bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
 
-class ErrorFilter(logging.Filter):
-    def filter(self, record):
-        return record.levelname == "ERROR" and "важно" in record.msg.lower() or record.dop
+#class ErrorFilter(logging.Filter):
+#    def filter(self, record):
+#        return record.levelname == "ERROR" and "важно" in record.msg.lower() or record.dop
+logger = logging.getLogger(__name__)
 
+logging.config.dictConfig(logging_config)
 
-stderr_handler = logging.StreamHandler()
+'''stderr_handler = logging.StreamHandler()
 file_handler = logging.FileHandler('logs.log')
-file_handler.addFilter(ErrorFilter())
+#file_handler.addFilter(ErrorFilter())
 
 format_1='[{asctime}] #{levelname:8} {filename}:'\
             '{lineno} - {name} - {message}'
@@ -29,13 +35,12 @@ formatter_1 = logging.Formatter(
     style = '{'
     )
 
-logger = logging.getLogger(__name__)
 
-stderr_handler.setFormatter(formatter_1)
-file_handler.setFormatter(formatter_1)
+#stderr_handler.setFormatter(formatter_1)
+#file_handler.setFormatter(formatter_1)
 
-logger.addHandler(stderr_handler)
-logger.addHandler(file_handler)
+#logger.addHandler(stderr_handler)
+#logger.addHandler(file_handler)'''
 
 admin_list : list[int] = [1204095743]
 
@@ -45,13 +50,18 @@ async def process_command_start(message: Message):
     await message.answer('Это команда /start')
     print(message.from_user.id)
     logger.error('важно! Это DEBUG сообщение')
-    logger.error('Это DEBUG сообщение', extra= {'dop' : 12})
 
 
 # Этот хэндлер будет срабатывать на команду "|start"
 @dp.message(Command(commands='start', prefix='|'))
 async def process_command_start_2(message: Message):
     await message.answer('И это команда |start')
+    try:
+        print(4/2)
+        print(4/0)
+    except Exception:
+        logger.exception('ошибка в делении!')
+
 
 @dp.message(F.text.lower().startswith('найди числа'), NumbersFilter())
 async def process_find_numbers(message : Message, num : list[int]):
